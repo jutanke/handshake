@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>QQ</title>
+    <style>
+        textarea{
+            width: 400px;
+            height: 100px;
+            resize: none;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="js/adapter.js"></script>
+</head>
+<body>
+<button id="active">active</button>
+<button id="active2">active->accept</button>
+<button id="passive">passive</button>
+<br/>
+<textarea id="metaIn" placeholder="in"></textarea>
+<textarea id="metaOut" placeholder="out"></textarea>
+<br/>
+<textarea id="metaInSmall" placeholder="in" style="display: none"></textarea>
+<textarea id="metaOutSmall" placeholder="out" style="display: none"></textarea>
+
+<div>
+    <input id="text"><button id="send">send</button>
+</div>
+<div id="remote">
+
+</div>
+
+</body>
+<script src="js/handshake.js"></script>
+<script>
+
+    $(function () {
+        var peer;
+        $("#active").on('click', function () {
+            peer = Handshake.createOffer(function (offer, small) {
+                $("#metaIn").val(offer);
+                $("#metaInSmall").val(small);
+            });
+        });
+
+        $("#active2").on('click', function () {
+            Handshake.handleAnswer(peer, $("#metaOut").val());
+        });
+
+
+        $("#passive").on('click', function () {
+            peer = Handshake.createAnswer($("#metaIn").val(), function (answer, small) {
+                $("#metaOut").val(answer);
+                $("#metaOutSmall").val(small);
+            });
+        });
+
+    });
+
+
+</script>
+</html>
