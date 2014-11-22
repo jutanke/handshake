@@ -42,6 +42,15 @@
                 $("#metaIn").val(offer);
                 $("#metaInSmall").val(small);
             });
+
+            peer.onopen(function () {
+                console.log("--ACTIVE--");
+            });
+
+            peer.onmessage(function (msg) {
+                console.log("msg:", msg);
+            });
+
         });
 
         $("#active2").on('click', function () {
@@ -54,6 +63,20 @@
                 $("#metaOut").val(answer);
                 $("#metaOutSmall").val(small);
             });
+
+            peer.onopen(function () {
+                console.log("--PASSIVE--");
+            });
+
+            peer.onmessage(function (msg) {
+                console.log("msg:", msg);
+            });
+        });
+
+
+        $("#send").on('click', function () {
+            var msg = $("#text").val();
+            peer.send(msg);
         });
 
     });

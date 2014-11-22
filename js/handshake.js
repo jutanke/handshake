@@ -10,6 +10,8 @@ window.Handshake = (function () {
         var pc = new RTCPeerConnection(ICE_CONFIG, CONN);
         this.pc = pc;
         this.dc = null;
+        this.onOpen = [];
+        this.onMessage = [];
         this.offerCallback = null;
         this.createCallback = null;
         var self = this;
@@ -27,6 +29,18 @@ window.Handshake = (function () {
         };
     }
 
+    Peer.prototype.onopen = function (callback) {
+        this.onOpen.push(callback);
+    };
+
+    Peer.prototype.onmessage = function (callback) {
+        this.onMessage.push(callback);
+    };
+
+    Peer.prototype.send = function (message) {
+        this.dc.send(message);
+    };
+
 
 
     /* ====================================
@@ -43,8 +57,19 @@ window.Handshake = (function () {
         }, function failure(e) { console.error(e); });
 
         dc.onopen = function () {
-            console.log("-> open");
+            var i = 0, L = peer.onOpen.length;
+            for(;i<L;i++) {
+                peer.onOpen[i].call(peer);
+            }
         };
+
+        dc.onmessage = function (e) {
+            var i = 0, L = peer.onMessage.length;
+            for(;i<L;i++) {
+                peer.onMessage[i].call(peer, e.data);
+            }
+        };
+
         peer.dc = dc;
 
         return peer;
@@ -69,10 +94,21 @@ window.Handshake = (function () {
             peer.dc = dc;
 
             dc.onopen = function () {
-                console.log("<- open!");
+                var i = 0, L = peer.onOpen.length;
+                for(;i<L;i++) {
+                    peer.onOpen[i].call(peer);
+                }
             };
 
+            dc.onmessage = function (e) {
+                var i = 0, L = peer.onMessage.length;
+                for(;i<L;i++) {
+                    peer.onMessage[i].call(peer, e.data);
+                }
+            };
         };
+
+        return peer;
     }
 
     /* ====================================
