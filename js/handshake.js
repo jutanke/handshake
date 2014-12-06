@@ -14,17 +14,36 @@ window.Handshake = (function () {
         this.onMessage = [];
         this.offerCallback = null;
         this.createCallback = null;
+        this.iceTimeout = null;
         var self = this;
+
+        /**
+         * returns the result
+         */
+        function exec() {
+            clearTimeout(self.iceTimeout);
+            var d = JSON.stringify(pc.localDescription);
+            if (self.offerCallback !== null) {
+                self.offerCallback.call(self, d);
+                self.offerCallback = null;
+            } else if (self.createCallback !== null) {
+                self.createCallback.call(self, d);
+                self.createCallback = null;
+            }
+            pc.onicecandidate = null;
+        }
+
         pc.onicecandidate = function (e) {
+            console.log("ice:", e.candidate === null ? "--" : e.candidate.candidate);
             if (e.candidate === null) {
-                var d = JSON.stringify(pc.localDescription);
-                if (self.offerCallback !== null) {
-                    self.offerCallback.call(self, d);
-                    self.offerCallback = null;
-                } else if (self.createCallback !== null) {
-                    self.createCallback.call(self, d);
-                    self.createCallback = null;
+                exec();
+            } else {
+                if (self.iceTimeout !== null) {
+                    clearTimeout(self.iceTimeout);
                 }
+                self.iceTimeout = setTimeout(function () {
+                    exec();
+                },1000);
             }
         };
     }
@@ -38,6 +57,9 @@ window.Handshake = (function () {
     };
 
     Peer.prototype.send = function (message) {
+        if (this.dc === null || this.dc.readyState !== "open") {
+            throw new Error("Handshake incomplete! Sending is not possible.");
+        }
         this.dc.send(message);
     };
 
