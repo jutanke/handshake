@@ -26,10 +26,31 @@ window.Handshake = (function () {
         this.dc = null;
         this.onOpen = [];
         this.onMessage = [];
+        this.onDisconnect = [];
         this.offerCallback = null;
         this.createCallback = null;
         this.iceTimeout = null;
         var self = this;
+
+        this.disconnectCounter = 0; // to prevent "false" positive...
+        this.thread = setInterval(function () {
+            var i = 0, L = self.onDisconnect.length;
+            if (self.dc !== null) {
+                if( self.dc.readyState === "closed") {
+                    if (self.disconnectCounter > 5) {
+                        for(;i<L;i++) {
+                            self.onDisconnect[i].call(self);
+                        }
+                        clearInterval(self.thread);
+                    } else {
+                        self.disconnectCounter += 1;
+                    }
+                } else {
+                    self.disconnectCounter = 0;
+                }
+            }
+
+        }, 100);
 
         /**
          * returns the result
@@ -48,7 +69,6 @@ window.Handshake = (function () {
         }
 
         pc.onicecandidate = function (e) {
-            console.log("ice:", e.candidate === null ? "--" : e.candidate.candidate);
             if (e.candidate === null) {
                 exec();
             } else {
@@ -57,10 +77,22 @@ window.Handshake = (function () {
                 }
                 self.iceTimeout = setTimeout(function () {
                     exec();
-                },1000);
+                }, 1000);
             }
         };
+
+        pc.onpeeridentity = function (e) {
+            console.log("peer ident:",e);
+        }
+
+        pc.onsignalingstatechange = function(ev) {
+            console.log("onsignalingstatechange event detected!", ev);
+        };
     }
+
+    Peer.prototype.ondisconnect = function (callback) {
+        this.onDisconnect.push(callback);
+    };
 
     Peer.prototype.onopen = function (callback) {
         this.onOpen.push(callback);
@@ -76,6 +108,7 @@ window.Handshake = (function () {
         }
         this.dc.send(JSON.stringify({type: MESSAGE_TYPE.MESSAGE, payload:message }));
     };
+
 
 
 
@@ -155,13 +188,6 @@ window.Handshake = (function () {
         return peer;
     }
 
-    /**
-     *
-     */
-    function elevateConnection() {
-
-    }
-
     /* ====================================
                 A P I
      ==================================== */
@@ -170,7 +196,6 @@ window.Handshake = (function () {
         createOffer: createOffer,
         handleAnswer: handleAnswer,
         createAnswer: createAnswer,
-        elevateConnection: elevateConnection,
 
         address : function () {
             return ADDRESS;
