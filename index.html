@@ -20,6 +20,7 @@
 <button id="active">active</button>
 <button id="active2">active->accept</button>
 <button id="passive">passive</button>
+<button id="disconnect">disconnect</button>
 <br/>
 <textarea id="metaIn" placeholder="in"></textarea>
 <textarea id="metaOut" placeholder="out"></textarea>
@@ -42,6 +43,10 @@
         var peer;
 
         $("#address").html(Handshake.address());
+
+        $("#disconnect").on('click', function () {
+            peer.disconnect();
+        });
 
         $("#active").on('click', function () {
             peer = Handshake.createOffer(function (offer, small) {

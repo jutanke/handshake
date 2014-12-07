@@ -90,6 +90,10 @@ window.Handshake = (function () {
         };
     }
 
+    Peer.prototype.disconnect = function () {
+        this.dc.close();
+    };
+
     Peer.prototype.ondisconnect = function (callback) {
         this.onDisconnect.push(callback);
     };
