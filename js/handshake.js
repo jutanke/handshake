@@ -1,3 +1,5 @@
+window.guid=function(){"performance"in window||(window.performance={});var a=window.performance;window.performance.now=a.now||a.mozNow||a.msNow||a.oNow||a.webkitNow||Date.now||function(){return(new Date).getTime()};return function(){var a=performance.now();return"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,function(c){var b=(a+16*Math.random())%16|0;a=Math.floor(a/16);return("x"===c?b:b&3|8).toString(16)})}}();
+
 /**
  * Created by Julian on 11/22/2014.
  */
@@ -5,10 +7,22 @@ window.Handshake = (function () {
 
     var ICE_CONFIG = {"iceServers":[{"url":"stun:23.21.150.121"}]};
     var CONN = { 'optional': [{'DtlsSrtpKeyAgreement': true}] };
+    var ADDRESS = guid(); // pseudounique
+
+    function isString(myVar) {
+        return (typeof myVar === 'string' || myVar instanceof String)
+    }
+
+    var MESSAGE_TYPE = {
+        MESSAGE : 0|0,
+        TELL_ADDRESS: 1|0,
+        GET_NEIGHBORS : 2|0
+    }
 
     function Peer() {
         var pc = new RTCPeerConnection(ICE_CONFIG, CONN);
         this.pc = pc;
+        this.address = null;
         this.dc = null;
         this.onOpen = [];
         this.onMessage = [];
@@ -60,7 +74,7 @@ window.Handshake = (function () {
         if (this.dc === null || this.dc.readyState !== "open") {
             throw new Error("Handshake incomplete! Sending is not possible.");
         }
-        this.dc.send(message);
+        this.dc.send(JSON.stringify({type: MESSAGE_TYPE.MESSAGE, payload:message }));
     };
 
 
@@ -79,22 +93,37 @@ window.Handshake = (function () {
         }, function failure(e) { console.error(e); });
 
         dc.onopen = function () {
-            var i = 0, L = peer.onOpen.length;
-            for(;i<L;i++) {
-                peer.onOpen[i].call(peer);
-            }
+            dc.send(JSON.stringify({type: MESSAGE_TYPE.TELL_ADDRESS, payload: ADDRESS}));
         };
 
-        dc.onmessage = function (e) {
-            var i = 0, L = peer.onMessage.length;
-            for(;i<L;i++) {
-                peer.onMessage[i].call(peer, e.data);
-            }
-        };
+        dc.onmessage = handleMessage(peer);
 
         peer.dc = dc;
-
         return peer;
+    }
+
+    function handleMessage(peer) {
+        return function (e) {
+            var msg = isString(e.data) ? JSON.parse(e.data) : e.data;
+            var i,L;
+            switch (msg.type) {
+                case MESSAGE_TYPE.GET_NEIGHBORS:
+                    break;
+                case MESSAGE_TYPE.TELL_ADDRESS:
+                    peer.address = msg.payload;
+                    i = 0, L = peer.onOpen.length;
+                    for(;i<L;i++) {
+                        peer.onOpen[i].call(peer);
+                    }
+                    break;
+                case MESSAGE_TYPE.MESSAGE:
+                    i = 0, L = peer.onMessage.length;
+                    for(;i<L;i++) {
+                        peer.onMessage[i].call(peer, msg.payload);
+                    }
+                    break;
+            }
+        };
     }
 
     function handleAnswer(peer, answer) {
@@ -116,21 +145,21 @@ window.Handshake = (function () {
             peer.dc = dc;
 
             dc.onopen = function () {
-                var i = 0, L = peer.onOpen.length;
-                for(;i<L;i++) {
-                    peer.onOpen[i].call(peer);
-                }
+                dc.send(JSON.stringify({type: MESSAGE_TYPE.TELL_ADDRESS, payload: ADDRESS}));
+                // delay open until the response is in
             };
 
-            dc.onmessage = function (e) {
-                var i = 0, L = peer.onMessage.length;
-                for(;i<L;i++) {
-                    peer.onMessage[i].call(peer, e.data);
-                }
-            };
+            dc.onmessage = handleMessage(peer);
         };
 
         return peer;
+    }
+
+    /**
+     *
+     */
+    function elevateConnection() {
+
     }
 
     /* ====================================
@@ -140,6 +169,13 @@ window.Handshake = (function () {
     return {
         createOffer: createOffer,
         handleAnswer: handleAnswer,
-        createAnswer: createAnswer
+        createAnswer: createAnswer,
+        elevateConnection: elevateConnection,
+
+        address : function () {
+            return ADDRESS;
+        }
+
     };
+
 })();
