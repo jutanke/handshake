@@ -5,7 +5,14 @@ window.guid=function(){"performance"in window||(window.performance={});var a=win
  */
 window.Handshake = (function () {
 
-    var ICE_CONFIG = {"iceServers":[{"url":"stun:23.21.150.121"}]};
+    var ICE_CONFIG = {"iceServers":[
+        {"url":"stun:23.21.150.121"},
+        {
+            'url': 'turn:192.158.29.39:3478?transport=udp',
+            'credential': 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+            'username': '28224511:1379330808'
+        }
+    ]};
     var CONN = { 'optional': [{'DtlsSrtpKeyAgreement': true}] };
     var ADDRESS = guid(); // pseudounique
 
@@ -72,6 +79,7 @@ window.Handshake = (function () {
             if (e.candidate === null) {
                 exec();
             } else {
+                console.log(e.candidate);
                 if (self.iceTimeout !== null) {
                     clearTimeout(self.iceTimeout);
                 }
