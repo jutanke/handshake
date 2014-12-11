@@ -4,7 +4,8 @@
   "description": "Handshake mechanism for WebRTC",
   "main": "lib/handshake.js",
   "scripts": {
-    "test": "index.html"
+    "test": "index.html",
+    "build": "browserify lib/handshake.js -o handshake.bundle.js"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,7 @@
   },
   "homepage": "https://github.com/justayak/handshake",
   "dependencies": {
-      "yutils" : "0.0.1"
+      "yutils" : "0.0.1",
+      "webrtc-adapter": "*"
   }
 }

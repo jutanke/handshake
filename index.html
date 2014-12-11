@@ -11,7 +11,6 @@
         }
     </style>
     <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-    <script src="jsold/adapter.js"></script>
 </head>
 <body>
 <div>
@@ -36,11 +35,13 @@
 </div>
 
 </body>
-<script src="jsold/handshake.js"></script>
+<!--script src="jsold/handshake.js"></script-->
+<script src="bundle.js"></script>
 <script>
 
     $(function () {
         var peer;
+        //var Handshake = require("./lib/handshake.js");
 
         $("#address").html(Handshake.address());
 
