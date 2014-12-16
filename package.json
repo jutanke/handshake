@@ -5,7 +5,8 @@
   "main": "lib/handshake.js",
   "scripts": {
     "test": "index.html",
-    "build": "browserify lib/handshake.js --s Handshake > build/handshake.bundle.js"
+    "debug": "browserify lib/handshake.js --debug --s Handshake > build/handshake.bundle.debug.js",
+    "build": "browserify lib/handshake.js --s Handshake | uglifyjs > build/handshake.bundle.js"
   },
   "repository": {
     "type": "git",
@@ -23,7 +24,10 @@
   },
   "homepage": "https://github.com/justayak/handshake",
   "dependencies": {
-      "yutils" : "0.0.1",
+      "yutils" : "0.0.2",
       "webrtc-adapter": "*"
-  }
+  },
+   "devDependencies":{
+       "uglify-js": "*"
+   }
 }
