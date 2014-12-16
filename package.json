@@ -5,7 +5,7 @@
   "main": "lib/handshake.js",
   "scripts": {
     "test": "index.html",
-    "build": "browserify lib/handshake.js -o handshake.bundle.js"
+    "build": "browserify lib/handshake.js --s Handshake > build/handshake.bundle.js"
   },
   "repository": {
     "type": "git",
