@@ -33,7 +33,7 @@ peer.onmessage(function(msg){
 ```javascript
 // B answer to the offer..
 var peer = Handshake.createAnswer(function(answer){
-    // we need to send {answer} to Alice
+    // we need to send {answer} back to Alice
     ...
 });
 
@@ -41,7 +41,7 @@ var peer = Handshake.createAnswer(function(answer){
 
 peer.onopen(function(){
     // we can send data now!
-    peer.send("Hello World");
+    peer.send("Hello World back");
 });
 
 peer.onmessage(function(msg){

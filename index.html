@@ -65,6 +65,10 @@
                 console.log("msg:", msg);
             });
 
+            peer.ondisconnect(function () {
+                console.log("other disconnected...*");
+            });
+
         });
 
         $("#active2").on('click', function () {
