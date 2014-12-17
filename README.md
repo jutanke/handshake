@@ -18,6 +18,9 @@ Handshake.handleAnswer(peer, ANSWER_FROM_BOB);
 
 // API
 
+// get own address
+var ownAddress = Handshake.address();
+
 peer.onopen(function(){
     // we can send data now!
     peer.send("Hello World");
