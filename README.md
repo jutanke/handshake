@@ -39,6 +39,11 @@ peer.onopen(function(){
     otherPeer.onopen(function(){
         ...
     });
+    
+    // gets called when the attempt to connect did not succeed.
+    otherPeer.oncannotfindpeer(function(addr){
+        ...
+    });
 });
 
 peer.onmessage(function(msg){
