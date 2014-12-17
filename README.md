@@ -39,21 +39,19 @@ peer.onopen(function(){
     otherPeer.onopen(function(){
         ...
     });
-    
- 
-    ...
-    
-    // callback for connections from within the network
-    Handshake.onRemoteConnection(function(peer){
-        peer.onopen(function(){
-            ...
-        });
-    });
- 
 });
 
 peer.onmessage(function(msg){
     console.log(msg);
+});
+
+...
+
+// callback for connections from within the network
+Handshake.onRemoteConnection(function(peer){
+    peer.onopen(function(){
+        ...
+    });
 });
 
 ```
