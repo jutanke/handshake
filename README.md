@@ -21,6 +21,35 @@ Handshake.handleAnswer(peer, ANSWER_FROM_BOB);
 peer.onopen(function(){
     // we can send data now!
     peer.send("Hello World");
+    
+    // ask the peer for all its current neighbors
+    peer.getNeighbors()
+        .then(function(neighbors){
+            console.log(neighbors); // ["Address1", "Address2", ...]
+        })
+        .catch(function(){
+            // something went wrong.. timeout or so..
+        });
+ 
+    ...
+    
+    // ask the peer to host a connection to another peer it is connected to
+    var otherPeer = peer.attemptToConnect("address1");
+    
+    otherPeer.onopen(function(){
+        ...
+    });
+    
+ 
+    ...
+    
+    // callback for connections from within the network
+    Handshake.onRemoteConnection(function(peer){
+        peer.onopen(function(){
+            ...
+        });
+    });
+ 
 });
 
 peer.onmessage(function(msg){

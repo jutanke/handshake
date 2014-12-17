@@ -20,6 +20,7 @@
 <button id="active2">active->accept</button>
 <button id="passive">passive</button>
 <button id="disconnect">disconnect</button>
+<button id="neighbors">neighbors</button>
 <br/>
 <textarea id="metaIn" placeholder="in"></textarea>
 <textarea id="metaOut" placeholder="out"></textarea>
@@ -56,6 +57,16 @@
             peer.disconnect();
         });
 
+        $("#neighbors").on('click', function () {
+            peer.getNeighbors()
+                    .then(function (neighbors) {
+                        console.log("neighbors ", neighbors);
+                    })
+                    .catch(function () {
+                        console.log("nope.. no neighbors");
+                    });
+        });
+
         $("#active").on('click', function () {
             var _peer = Handshake.createOffer(function (offer, small) {
                 $("#metaIn").html("");
@@ -73,6 +84,10 @@
 
             _peer .ondisconnect(function () {
                 console.log("other disconnected...*");
+            });
+
+            _peer.oncannotfindpeer(function (other) {
+                console.log("cannot find: " + other);
             });
 
             if (peer === null) {
