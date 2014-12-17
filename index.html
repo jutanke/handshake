@@ -132,24 +132,24 @@
             var addr = $("#remoteAddr").val();
             peer2 = peer.attemptToConnect(addr);
             peer2.onopen (function () {
-               console.log("CONNECTION ESTABLISHED");
+               console.log("CONNECTION ESTABLISHED", peer2);
                 setTimeout(function () {
                     peer2.send("HELLO WORLD");
                 }, 1500);
             });
 
-            peer2.onmessage = function (msg) {
+            peer2.onmessage(function (msg) {
                 console.log("peer2 " + msg);
-            }
+            });
         });
 
         Handshake.onRemoteConnection(function (_peer) {
             _peer.onopen(function () {
-                console.log("remote peer open!");
+                console.log("remote peer open!", _peer);
                 peer2 = _peer;
-                peer2.onmessage = function (msg) {
+                peer2.onmessage(function (msg) {
                     console.log("peer2 " + msg);
-                }
+                });
 
                 setTimeout(function () {
                     _peer.send("HELLO WORLD");
