@@ -30,6 +30,12 @@
 <div>
     <input id="text"><button id="send">send</button>
 </div>
+<div>
+    <input id="text2"><button id="send2">send</button>
+</div>
+<div>
+    <input id="remoteAddr"><button id="remoteBtn">handshake</button>
+</div>
 <div id="remote">
 
 </div>
@@ -41,7 +47,7 @@
 
     $(function () {
 
-        var peer;
+        var peer = null, peer2 = null;
         //var Handshake = require("./lib/handshake.js");
 
         $("#address").html(Handshake.address());
@@ -51,54 +57,104 @@
         });
 
         $("#active").on('click', function () {
-            peer = Handshake.createOffer(function (offer, small) {
+            var _peer = Handshake.createOffer(function (offer, small) {
                 $("#metaIn").html("");
                 $("#metaIn").val(offer);
                 $("#metaInSmall").val(small);
             });
 
-            peer.onopen(function () {
+            _peer .onopen(function () {
                 console.log("--ACTIVE--:" + peer.address);
             });
 
-            peer.onmessage(function (msg) {
+            _peer .onmessage(function (msg) {
                 console.log("msg:", msg);
             });
 
-            peer.ondisconnect(function () {
+            _peer .ondisconnect(function () {
                 console.log("other disconnected...*");
             });
+
+            if (peer === null) {
+                peer = _peer;
+            } else {
+                peer2 = _peer;
+            }
 
         });
 
         $("#active2").on('click', function () {
-            Handshake.handleAnswer(peer, $("#metaOut").val());
+            if (peer2 === null) {
+                Handshake.handleAnswer(peer, $("#metaOut").val());
+            } else {
+                Handshake.handleAnswer(peer2, $("#metaOut").val());
+            }
+
         });
 
 
         $("#passive").on('click', function () {
-            peer = Handshake.createAnswer($("#metaIn").val(), function (answer, small) {
+            var _peer = Handshake.createAnswer($("#metaIn").val(), function (answer, small) {
                 $("#metaOut").html("");
                 $("#metaOut").val(answer);
                 $("#metaOutSmall").val(small);
             });
 
-            peer.onopen(function () {
+            _peer.onopen(function () {
                 console.log("--PASSIVE--:" + peer.address);
             });
 
-            peer.onmessage(function (msg) {
+            _peer.onmessage(function (msg) {
                 console.log("msg:", msg);
             });
 
-            peer.ondisconnect(function () {
+            _peer.ondisconnect(function () {
                 console.log("other disconnected...");
             });
+
+            if (peer === null) {
+                peer = _peer;
+            } else {
+                peer2 = _peer;
+            }
         });
 
         $("#send").on('click', function () {
             var msg = $("#text").val();
             peer.send(msg);
+        });
+        $("#send2").on('click', function () {
+            var msg = $("#text2").val();
+            peer2.send(msg);
+        });
+
+        $("#remoteBtn").on('click', function () {
+            var addr = $("#remoteAddr").val();
+            peer2 = peer.attemptToConnect(addr);
+            peer2.onopen (function () {
+               console.log("CONNECTION ESTABLISHED");
+                setTimeout(function () {
+                    peer2.send("HELLO WORLD");
+                }, 1500);
+            });
+
+            peer2.onmessage = function (msg) {
+                console.log("peer2 " + msg);
+            }
+        });
+
+        Handshake.onRemoteConnection(function (_peer) {
+            _peer.onopen(function () {
+                console.log("remote peer open!");
+                peer2 = _peer;
+                peer2.onmessage = function (msg) {
+                    console.log("peer2 " + msg);
+                }
+
+                setTimeout(function () {
+                    _peer.send("HELLO WORLD");
+                }, 2500);
+            });
         });
 
     });
