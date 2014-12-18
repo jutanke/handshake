@@ -172,6 +172,10 @@
             });
         });
 
+        Handshake.onmessage(function (peer, message) {
+            console.log("Message from: " + peer.address + " |" + message);
+        });
+
     });
 
 

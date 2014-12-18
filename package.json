@@ -1,6 +1,6 @@
 {
   "name": "handshake-webrtc",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "Handshake mechanism for WebRTC",
   "main": "lib/handshake.js",
   "scripts": {
@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/justayak/handshake",
   "dependencies": {
-      "yutils" : "0.0.3",
+      "yutils" : ">=0.0.4",
       "webrtc-adapter" : "*",
       "bluebird" : "2.3.x"
   },
