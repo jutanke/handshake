@@ -1,6 +1,6 @@
 {
   "name": "handshake-webrtc",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Handshake mechanism for WebRTC",
   "main": "lib/handshake.js",
   "scripts": {
